@@ -64,7 +64,7 @@ struct DashboardContent: View {
                 }
                 Button(action: {
                     selectedTab = "Past"
-                    handlePastTapped()
+                   
                 }) {
                     Text("Past")
                         .foregroundColor(selectedTab == "Past" ? .white : .blue)
@@ -106,11 +106,6 @@ struct DashboardContent: View {
 
             Spacer()
         }
-    }
-
-    // Placeholder action for "Past"
-    func handlePastTapped() {
-        print("🕒 Past tab selected")
     }
 }
 
@@ -170,16 +165,14 @@ struct AppointmentCard: View {
                     Text("Show History")
                         .frame(maxWidth: .infinity, maxHeight: 2)
                         .padding()
-                        .background(Color.blue)
+                        .background(Color(hex: "#61AAF2"))
                         .foregroundColor(.white)
                         .cornerRadius(20)
                 }
             } else {
                 // ✅ Upcoming actions
                 HStack {
-                    Button(action: {
-                        print("🟢 Start Consult for \(appointment.patientName)")
-                    }) {
+                    NavigationLink(destination: ConsultationCard(patientName: "\(appointment.patientName)")) {
                         Text("Start Consult")
                             .frame(maxWidth: .infinity, maxHeight: 2)
                             .padding()
@@ -187,6 +180,7 @@ struct AppointmentCard: View {
                             .foregroundColor(.white)
                             .cornerRadius(20)
                     }
+
                     Button(action: {
                         print("Reschedule \(appointment.patientName)")
                     }) {

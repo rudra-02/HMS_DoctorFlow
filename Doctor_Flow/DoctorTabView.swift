@@ -9,30 +9,32 @@ import SwiftUI
 struct DoctorTabView: View {
     @State private var selectedIndex: Int = 0
     @State private var selectedTab: String = "Upcoming" // for Dashboard's capsule tabs
-
+    
     var body: some View {
-        VStack(spacing: 0) {
-            // Switch between doctor screens
-            Group {
-                switch selectedIndex {
-                case 0:
-                    DashboardContent(selectedTab: $selectedTab)
-                case 1:
-                    ManageSlotsView()
-                case 2:
-                    PatientsView()
-                default:
-                    DashboardContent(selectedTab: $selectedTab)
+        NavigationView{
+            VStack(spacing: 0) {
+                // Switch between doctor screens
+                Group {
+                    switch selectedIndex {
+                    case 0:
+                        DashboardContent(selectedTab: $selectedTab)
+                    case 1:
+                        DoctorSlotManagerView()
+                    case 2:
+                        PatientsView()
+                    default:
+                        DashboardContent(selectedTab: $selectedTab)
+                    }
                 }
+                
+                Divider()
+                
+                // Reusable tab bar
+                DoctorTabBar(selectedIndex: $selectedIndex)
             }
-
-            Divider()
-
-            // Reusable tab bar
-            DoctorTabBar(selectedIndex: $selectedIndex)
+            .background(Theme.light.background)
+            .navigationBarHidden(true)
         }
-        .background(Theme.light.background)
-        .navigationBarHidden(true)
     }
 }
 

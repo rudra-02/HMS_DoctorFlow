@@ -13,6 +13,7 @@ struct Appointment: Identifiable {
     let patientName: String
     let time: String
     let issue: String
+    let duration: Int = 0
     let imageName: String
 }
 
