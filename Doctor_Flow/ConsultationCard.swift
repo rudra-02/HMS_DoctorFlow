@@ -41,10 +41,10 @@ struct ConsultationCard: View {
 
             // Toggle Tabs
             HStack(spacing: 0) {
-                SegmentButton(title: "CONSULT", isSelected: selectedTab == "CONSULT") {
+                SegmentButton(title: "Consult", isSelected: selectedTab == "CONSULT") {
                     selectedTab = "CONSULT"
                 }
-                SegmentButton(title: "PATIENT HISTORY", isSelected: selectedTab == "PATIENT HISTORY") {
+                SegmentButton(title: "Patient History", isSelected: selectedTab == "PATIENT HISTORY") {
                     selectedTab = "PATIENT HISTORY"
                     prescription = ""
                     notes = ""
@@ -109,9 +109,9 @@ struct ConsultationCard: View {
                     .background(Color(.systemBackground))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.blue, lineWidth: 1.5)
+                            .stroke(Theme.light.primary, lineWidth: 1.5)
                     )
-                    .foregroundColor(.blue)
+                    .foregroundColor(Theme.light.primary)
                     .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
                 }
 
@@ -125,7 +125,7 @@ struct ConsultationCard: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
+                    .background(Theme.light.primary)
                     .foregroundColor(.white)
                     .cornerRadius(16)
                     .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
@@ -151,11 +151,11 @@ struct SegmentButton: View {
             Text(title)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(isSelected ? Color.blue : Color.clear)
-                .foregroundColor(isSelected ? .white : .blue)
+                .background(isSelected ? Theme.light.primary : Color.white)
+                .foregroundColor(isSelected ? .white : Theme.light.primary)
                 .font(.headline)
         }
-        .background(isSelected ? Color.blue : Color.clear)
+        .background(isSelected ? Theme.light.primary : Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 30))
     }
 }

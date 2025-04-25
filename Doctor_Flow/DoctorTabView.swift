@@ -11,7 +11,7 @@ struct DoctorTabView: View {
     @State private var selectedTab: String = "Upcoming" // for Dashboard's capsule tabs
     
     var body: some View {
-        NavigationView{
+        NavigationStack{
             VStack(spacing: 0) {
                 // Switch between doctor screens
                 Group {
@@ -65,17 +65,7 @@ struct DoctorTabBar: View {
 
 
 // MARK: - Placeholder Views
-struct ManageSlotsView: View {
-    var body: some View {
-        VStack {
-            Text("Manage Slots Screen")
-                .font(.title2)
-                .foregroundColor(.gray)
-            Spacer()
-        }
-        .padding()
-    }
-}
+
 
 struct PatientsView: View {
     var body: some View {
@@ -87,4 +77,9 @@ struct PatientsView: View {
         }
         .padding()
     }
+}
+
+
+#Preview {
+    DoctorTabView()
 }

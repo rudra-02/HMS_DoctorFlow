@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct DoctorSlotManagerView: View {
     @State private var selectedDate: Date = Date()
     @State private var fullDayLeaves: Set<Date> = []
@@ -50,9 +51,9 @@ struct DoctorSlotManagerView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         // Date selector with legend
                         VStack(alignment: .leading, spacing: 14) {
-//                            Text("Select Date")
-//                                .font(.system(size: 16, weight: .semibold))
-//                                .foregroundColor(.black)
+                            //                            Text("Select Date")
+                            //                                .font(.system(size: 16, weight: .semibold))
+                            //                                .foregroundColor(.black)
                             
                             CalendarView(
                                 selectedDate: $selectedDate,
@@ -63,7 +64,7 @@ struct DoctorSlotManagerView: View {
                             
                             // Legend
                             HStack(spacing: 20) {
-                                LegendItem(color: .blue, text: "Selected")
+                                LegendItem(color: Theme.light.primary, text: "Selected")
                                 LegendItem(color: redLeaveColor, text: "Leave")
                                 LegendItem(color: .green, text: "Today")
                             }
@@ -164,44 +165,47 @@ struct DoctorSlotManagerView: View {
                     
                     
                     // Bottom buttons
-                    HStack(spacing: 16) {
-                        // Undo button
-                        Button(action: {
-                            undoLastAction()
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.uturn.backward")
-                                Text("Undo")
-                            }
-                            .font(.system(size: 16, weight: .medium))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(lastAction != nil ? leaveColor.opacity(0.1) : Color.gray.opacity(0.1))
-                            .foregroundColor(lastAction != nil ? leaveColor : .gray)
-                            .cornerRadius(20)
-                        }
-                        .disabled(lastAction == nil)
-
-                        // Save button
-                        Button(action: {
-                            showSuccessToast = true
-                            lastAction = nil
-                            actionType = .none
-                            
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                showSuccessToast = false
-                            }
-                        }) {
-                            Text("Save Changes")
+                    .safeAreaInset(edge: .bottom) {
+                        HStack(spacing: 16) {
+                            // Undo button
+                            Button(action: {
+                                undoLastAction()
+                            }) {
+                                HStack {
+                                    Image(systemName: "arrow.uturn.backward")
+                                    Text("Undo")
+                                }
                                 .font(.system(size: 16, weight: .medium))
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(leaveColor)
-                                .foregroundColor(.white)
+                                .background(lastAction != nil ? leaveColor.opacity(0.1) : Color.gray.opacity(0.1))
+                                .foregroundColor(lastAction != nil ? leaveColor : .gray)
                                 .cornerRadius(20)
+                            }
+                            .disabled(lastAction == nil)
+                            
+                            // Save button
+                            Button(action: {
+                                showSuccessToast = true
+                                lastAction = nil
+                                actionType = .none
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    showSuccessToast = false
+                                }
+                            }) {
+                                Text("Save Changes")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(leaveColor)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(20)
+                            }
                         }
+                        .padding()
+                        .background(Theme.light.background) // Or .background(Color.white)
                     }
-                    .padding(.horizontal)
                 }
             }
             
@@ -223,7 +227,7 @@ struct DoctorSlotManagerView: View {
                     .shadow(radius: 5)
                     .padding()
                     .transition(.move(edge: .bottom))
-                    .animation(.easeInOut)
+//                    .animation(.easeInOut)
                 }
             }
         }
@@ -421,7 +425,7 @@ struct CalendarView: View {
                             Circle()
                                 .fill(
                                     isOnLeave ? leaveColor :
-                                        isSelected ? Color.blue :
+                                        isSelected ? Theme.light.primary :
                                             Color.clear
                                 )
                                 .frame(width: 38, height: 38)

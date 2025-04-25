@@ -5,29 +5,29 @@
 //  Created by Rudra Pruthi on 23/04/25.
 //
 import SwiftUI
-
-struct DashboardView: View {
-    @State private var selectedTab: String = "Upcoming"
-    @State private var selectedIndex: Int = 0 // 0 - Dashboard, 1 - Slots, 2 - Patients
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                if selectedIndex == 0 {
-                    DashboardContent(selectedTab: $selectedTab)
-                } else if selectedIndex == 1 {
-                    ManageSlotsView() // Placeholder view
-                } else if selectedIndex == 2 {
-                    PatientsView() // Placeholder view
-                }
-
-                Divider()
-            }
-            .background(Theme.light.background)
-            .navigationBarHidden(true)
-        }
-    }
-}
+//
+//struct DashboardView: View {
+//    @State private var selectedTab: String = "Upcoming"
+//    @State private var selectedIndex: Int = 0 // 0 - Dashboard, 1 - Slots, 2 - Patients
+//    
+//    var body: some View {
+//        NavigationView {
+//            VStack(spacing: 0) {
+//                if selectedIndex == 0 {
+//                    DashboardContent(selectedTab: $selectedTab)
+//                } else if selectedIndex == 1 {
+//                    DoctorSlotManagerView() // Placeholder view
+//                } else if selectedIndex == 2 {
+//                    PatientsView() // Placeholder view
+//                }
+//
+//                Divider()
+//            }
+//            .background(Theme.dark.background)
+//            .navigationBarHidden(true)
+//        }
+//    }
+//}
 
 // MARK: - Dashboard Main Content
 struct DashboardContent: View {
@@ -44,10 +44,12 @@ struct DashboardContent: View {
                         .foregroundColor(.gray)
                 }
                 Spacer()
-                Image("person1")
-                    .resizable()
-                    .clipShape(Circle())
-                    .frame(width: 50, height: 50)
+                NavigationLink(destination: DoctorProfileView()) {
+                    Image("person1")
+                        .resizable()
+                        .clipShape(Circle())
+                        .frame(width: 50, height: 50)
+                }
             }
             .padding(.horizontal)
 
@@ -56,10 +58,10 @@ struct DashboardContent: View {
                     selectedTab = "Upcoming"
                 }) {
                     Text("Upcoming")
-                        .foregroundColor(selectedTab == "Upcoming" ? .white : .blue)
+                        .foregroundColor(selectedTab == "Upcoming" ? .white : Theme.light.primary)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: 40)
-                        .background(selectedTab == "Upcoming" ? Color.blue : Color.clear)
+                        .background(selectedTab == "Upcoming" ? Theme.light.primary : Color.clear)
                         .cornerRadius(25)
                 }
                 Button(action: {
@@ -67,10 +69,10 @@ struct DashboardContent: View {
                    
                 }) {
                     Text("Past")
-                        .foregroundColor(selectedTab == "Past" ? .white : .blue)
+                        .foregroundColor(selectedTab == "Past" ? .white : Theme.light.primary)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: 40)
-                        .background(selectedTab == "Past" ? Color.blue : Color.clear)
+                        .background(selectedTab == "Past" ? Theme.light.primary : Color.clear)
                         .cornerRadius(25)
                 }
             }
@@ -83,12 +85,10 @@ struct DashboardContent: View {
             if selectedTab == "Past" {
                 HStack {
                     Spacer()
-                    Button(action: {
-                        print("See all past appointments tapped")
-                    }) {
+                    NavigationLink(destination: PastAppointmentsCalendarView()) {
                         Text("See All")
                             .font(.subheadline)
-                            .foregroundColor(.blue)
+                            .foregroundColor(Theme.light.primary)
                             .padding(.trailing)
                     }
                 }
@@ -121,10 +121,10 @@ struct TabItem: View {
     var body: some View {
         VStack {
             Image(systemName: image)
-                .foregroundColor(isSelected ? .blue : .gray)
+                .foregroundColor(isSelected ? Theme.light.primary : .gray)
             Text(title)
                 .font(.caption)
-                .foregroundColor(isSelected ? .blue : .gray)
+                .foregroundColor(isSelected ? Theme.light.primary : .gray)
         }
         .onTapGesture {
             action()
@@ -153,7 +153,7 @@ struct AppointmentCard: View {
                 }
                 Spacer()
                 Text(appointment.time)
-                    .foregroundColor(.blue)
+                    .foregroundColor(Theme.light.primary)
             }
             .padding(.bottom, 8)
 
@@ -176,23 +176,21 @@ struct AppointmentCard: View {
                         Text("Start Consult")
                             .frame(maxWidth: .infinity, maxHeight: 2)
                             .padding()
-                            .background(Color.blue)
+                            .background(Theme.light.primary)
                             .foregroundColor(.white)
                             .cornerRadius(20)
                     }
 
-                    Button(action: {
-                        print("Reschedule \(appointment.patientName)")
-                    }) {
+                    NavigationLink(destination: RescheduleView(appointment: appointment, initialDate: appointment.date)){
                         Text("Reschedule")
                             .frame(maxWidth: .infinity, maxHeight: 2)
                             .padding()
                             .background(Color.clear)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.blue, lineWidth: 1)
+                                    .stroke(Theme.light.primary, lineWidth: 1)
                             )
-                            .foregroundColor(.blue)
+                            .foregroundColor(Theme.light.primary)
                     }
                 }
             }
