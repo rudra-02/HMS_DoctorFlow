@@ -17,6 +17,7 @@ struct DoctorSlotManagerView: View {
     @State private var lastAction: (date: Date, slots: Set<String>)? = nil
     @State private var actionType: ActionType = .none
     @State private var showSuccessToast: Bool = false
+    @State private var showDatePicker: Bool = false
     
     private var theme: Theme {
         colorScheme == .dark ? Theme.dark : Theme.light
@@ -43,31 +44,45 @@ struct DoctorSlotManagerView: View {
             VStack(alignment: .leading, spacing: 16) {
                 // Header
                 HStack {
-                    
                     Spacer()
                     Text("MANAGE SLOTS")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(theme.text)
                     Spacer()
                 }
-                
                 .padding(.horizontal)
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         // Date selector with legend
                         VStack(alignment: .leading, spacing: 14) {
-                            //                            Text("Select Date")
-                            //                                .font(.system(size: 16, weight: .semibold))
-                            //                                .foregroundColor(.black)
                             
-                            CalendarView(
-                                selectedDate: $selectedDate,
-                                fullDayLeaves: $fullDayLeaves,
-                                leaveColor: redLeaveColor,
-                                mainColor: leaveColor,
-                                theme: theme
-                            )
+                            // Date Picker Button
+                            Button(action: {
+                                showDatePicker = true
+                            }) {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text("Selected Date")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.gray)
+                                        
+                                        Text(formattedDate(selectedDate))
+                                            .font(.system(size: 18, weight: .semibold))
+                                            .foregroundColor(theme.text)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "calendar")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(theme.primary)
+                                }
+                                .padding()
+                                .background(theme.card)
+                                .cornerRadius(12)
+                                .shadow(color: theme.shadow, radius: 2)
+                            }
                             
                             // Legend
                             HStack(spacing: 20) {
@@ -132,10 +147,23 @@ struct DoctorSlotManagerView: View {
                         
                         // Time Slots Section
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Manage Time Slots")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(theme.text)
-                                .padding(.horizontal)
+                            HStack {
+                                Text("Manage Time Slots")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(theme.text)
+                                
+                                if fullDayLeaves.contains(selectedDate) {
+                                    Spacer()
+                                    Text("Full Day Leave")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(redLeaveColor)
+                                        .cornerRadius(8)
+                                }
+                            }
+                            .padding(.horizontal)
                             
                             // Morning slots
                             SlotSection(
@@ -237,8 +265,26 @@ struct DoctorSlotManagerView: View {
                     .shadow(radius: 5)
                     .padding()
                     .transition(.move(edge: .bottom))
-//                    .animation(.easeInOut)
                 }
+            }
+            
+            // Date picker sheet
+            if showDatePicker {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        showDatePicker = false
+                    }
+                
+                DatePickerView(
+                    selectedDate: $selectedDate,
+                    fullDayLeaves: fullDayLeaves,
+                    isShowing: $showDatePicker,
+                    theme: theme,
+                    leaveColor: redLeaveColor
+                )
+                .transition(.move(edge: .bottom))
+                .animation(.easeInOut, value: showDatePicker)
             }
         }
         .background(theme.background)
@@ -249,6 +295,12 @@ struct DoctorSlotManagerView: View {
                 dismissButton: .default(Text("OK"))
             )
         }
+    }
+    
+    func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
     }
     
     func toggleTimeSlot(for date: Date, time: String) {
@@ -348,121 +400,65 @@ struct DoctorSlotManagerView: View {
     }
 }
 
-// MARK: - Calendar View
-struct CalendarView: View {
+// MARK: - DatePickerView
+struct DatePickerView: View {
     @Binding var selectedDate: Date
-    @Binding var fullDayLeaves: Set<Date>
-    let leaveColor: Color
-    let mainColor: Color
+    let fullDayLeaves: Set<Date>
+    @Binding var isShowing: Bool
     let theme: Theme
-    
-    let calendar = Calendar.current
-    @State private var currentMonth = Date()
-    
-    var daysInMonth: [Date] {
-        guard let range = calendar.range(of: .day, in: .month, for: currentMonth),
-              let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: currentMonth)) else {
-            return []
-        }
-        
-        return range.compactMap { day -> Date? in
-            calendar.date(byAdding: .day, value: day - 1, to: monthStart)
-        }
-    }
+    let leaveColor: Color
     
     var body: some View {
         VStack {
-            // Month navigation
+            // Header
             HStack {
-                Button(action: {
-                    if let newMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) {
-                        currentMonth = newMonth
-                    }
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(mainColor)
-                }
-                
-                Spacer()
-                
-                Text(monthYearString(from: currentMonth))
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(mainColor)
+                Text("Select Date")
+                    .font(.headline)
+                    .foregroundColor(theme.text)
                 
                 Spacer()
                 
                 Button(action: {
-                    if let newMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) {
-                        currentMonth = newMonth
-                    }
+                    isShowing = false
                 }) {
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(mainColor)
-                }
-            }
-            .padding(.horizontal, 8)
-            
-            // Days of the week header
-            HStack {
-                ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
-                    Text(day)
-                        .font(.system(size: 14, weight: .medium))
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 24))
                         .foregroundColor(.gray)
-                    
-                        .frame(maxWidth: .infinity)
                 }
             }
-            .padding(.vertical, 10)
-            // Calendar grid with placeholder for days from previous/next month
-            let firstWeekday = calendar.component(.weekday, from: daysInMonth.first ?? Date())
-            let leadingSpaces = firstWeekday - 1
+            .padding()
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
-                // Leading empty spaces
-                ForEach(0..<leadingSpaces, id: \.self) { _ in
-                    Color.clear.frame(width: 38, height: 38)
-                }
-                
-                // Days of the month
-                ForEach(daysInMonth, id: \.self) { date in
-                    let isSelected = calendar.isDate(selectedDate, inSameDayAs: date)
-                    let isOnLeave = fullDayLeaves.contains { calendar.isDate($0, inSameDayAs: date) }
-                    let isToday = calendar.isDateInToday(date)
-                    
-                    Button(action: {
-                        selectedDate = date
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    isOnLeave ? leaveColor :
-                                        isSelected ? theme.primary :
-                                            Color.clear
-                                )
-                                .frame(width: 38, height: 38)
-                            
-                            Circle()
-                                .strokeBorder(isToday && !isSelected && !isOnLeave ? Color.green : Color.clear, lineWidth: 2)
-                                .frame(width: 38, height: 38)
-                            
-                            Text("\(calendar.component(.day, from: date))")
-                                .font(.system(size: 16, weight: isToday || isSelected ? .bold : .regular))
-                                .foregroundColor(isSelected || isOnLeave ? .white : (isToday ? .green : theme.text))
-                        }
-                    }
-                }
+            // Date Picker
+            DatePicker(
+                "",
+                selection: $selectedDate,
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(GraphicalDatePickerStyle())
+            .padding()
+            .accentColor(theme.primary)
+            
+            // Apply button
+            Button(action: {
+                isShowing = false
+            }) {
+                Text("Apply")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(theme.primary)
+                    .cornerRadius(12)
             }
-            .padding(12)
-            .background(theme.card)
-            .cornerRadius(16)
-            .shadow(color: theme.shadow, radius: 4)
+            .padding(.horizontal)
+            .padding(.bottom)
         }
-    }
-    
-    func monthYearString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: date)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(theme.card)
+                .shadow(radius: 10)
+        )
+        .padding(.horizontal, 20)
     }
 }
 
