@@ -7,6 +7,12 @@
 import SwiftUI
 
 struct DoctorProfileView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
+    
     var body: some View {
         VStack(spacing: 20) {
             Image("person1")
@@ -18,6 +24,7 @@ struct DoctorProfileView: View {
             Text("Dr. Kanav Nijhawan")
                 .font(.title)
                 .bold()
+                .foregroundColor(theme.text)
 
             Text("Age: 35")
                 .foregroundColor(.gray)
@@ -43,6 +50,6 @@ struct DoctorProfileView: View {
         .padding()
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
-        .background(Theme.light.background.ignoresSafeArea())
+        .background(theme.background.ignoresSafeArea())
     }
 }

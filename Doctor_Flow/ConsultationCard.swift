@@ -9,10 +9,15 @@
 import SwiftUI
 
 struct ConsultationCard: View {
+    @Environment(\.colorScheme) private var colorScheme
     let patientName: String
     @State private var prescription: String = ""
     @State private var notes: String = ""
     @State private var selectedTab: String = "CONSULT"
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 28) {
@@ -23,6 +28,7 @@ struct ConsultationCard: View {
                     Text("\(patientName)")
                         .font(.largeTitle)
                         .bold()
+                        .foregroundColor(theme.text)
 
                     Text("Dr. Kanav Nijhawan")
                         .font(.title3)
@@ -41,10 +47,10 @@ struct ConsultationCard: View {
 
             // Toggle Tabs
             HStack(spacing: 0) {
-                SegmentButton(title: "Consult", isSelected: selectedTab == "CONSULT") {
+                SegmentButton(title: "Consult", isSelected: selectedTab == "CONSULT", theme: theme) {
                     selectedTab = "CONSULT"
                 }
-                SegmentButton(title: "Patient History", isSelected: selectedTab == "PATIENT HISTORY") {
+                SegmentButton(title: "Patient History", isSelected: selectedTab == "PATIENT HISTORY", theme: theme) {
                     selectedTab = "PATIENT HISTORY"
                     prescription = ""
                     notes = ""
@@ -58,11 +64,12 @@ struct ConsultationCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("PRESCRIPTION:")
                         .font(.headline)
+                        .foregroundColor(theme.text)
 
                     TextEditor(text: $prescription)
                         .frame(height: 150)
                         .padding(10)
-                        .background(Color(.systemGray6))
+                        .background(colorScheme == .dark ? Color(hex: "#333333") : Color(.systemGray6))
                         .cornerRadius(12)
                 }
                 .padding(.horizontal)
@@ -71,11 +78,12 @@ struct ConsultationCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("NOTES:")
                         .font(.headline)
+                        .foregroundColor(theme.text)
 
                     TextEditor(text: $notes)
                         .frame(height: 120)
                         .padding(10)
-                        .background(Color(.systemGray6))
+                        .background(colorScheme == .dark ? Color(hex: "#333333") : Color(.systemGray6))
                         .cornerRadius(12)
                 }
                 .padding(.horizontal)
@@ -106,13 +114,13 @@ struct ConsultationCard: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color(.systemBackground))
+                    .background(theme.card)
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Theme.light.primary, lineWidth: 1.5)
+                            .stroke(theme.primary, lineWidth: 1.5)
                     )
-                    .foregroundColor(Theme.light.primary)
-                    .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+                    .foregroundColor(theme.primary)
+                    .shadow(color: theme.shadow, radius: 4, x: 0, y: 2)
                 }
 
                 Button(action: {
@@ -125,17 +133,17 @@ struct ConsultationCard: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Theme.light.primary)
+                    .background(theme.primary)
                     .foregroundColor(.white)
                     .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
+                    .shadow(color: theme.shadow, radius: 6, x: 0, y: 3)
                 }
             }
             .padding(.horizontal)
             .padding(.bottom, 36) // Extra bottom space
         }
         .padding(.top)
-        .background(Color(.systemGroupedBackground))
+        .background(theme.background)
         .ignoresSafeArea(.keyboard)
     }
 }
@@ -144,6 +152,7 @@ struct ConsultationCard: View {
 struct SegmentButton: View {
     var title: String
     var isSelected: Bool
+    var theme: Theme
     var action: () -> Void
 
     var body: some View {
@@ -151,11 +160,11 @@ struct SegmentButton: View {
             Text(title)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(isSelected ? Theme.light.primary : Color.white)
-                .foregroundColor(isSelected ? .white : Theme.light.primary)
+                .background(isSelected ? theme.primary : theme.card)
+                .foregroundColor(isSelected ? .white : theme.primary)
                 .font(.headline)
         }
-        .background(isSelected ? Theme.light.primary : Color.white)
+        .background(isSelected ? theme.primary : theme.card)
         .clipShape(RoundedRectangle(cornerRadius: 30))
     }
 }

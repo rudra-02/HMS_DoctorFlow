@@ -31,7 +31,12 @@ import SwiftUI
 
 // MARK: - Dashboard Main Content
 struct DashboardContent: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedTab: String
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -40,6 +45,7 @@ struct DashboardContent: View {
                     Text("Good Morning")
                         .font(.title)
                         .bold()
+                        .foregroundColor(theme.text)
                     Text("Dr. Kanav Nijhawan")
                         .foregroundColor(.gray)
                 }
@@ -58,10 +64,10 @@ struct DashboardContent: View {
                     selectedTab = "Upcoming"
                 }) {
                     Text("Upcoming")
-                        .foregroundColor(selectedTab == "Upcoming" ? .white : Theme.light.primary)
+                        .foregroundColor(selectedTab == "Upcoming" ? .white : theme.primary)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: 40)
-                        .background(selectedTab == "Upcoming" ? Theme.light.primary : Color.clear)
+                        .background(selectedTab == "Upcoming" ? theme.primary : Color.clear)
                         .cornerRadius(25)
                 }
                 Button(action: {
@@ -69,14 +75,14 @@ struct DashboardContent: View {
                    
                 }) {
                     Text("Past")
-                        .foregroundColor(selectedTab == "Past" ? .white : Theme.light.primary)
+                        .foregroundColor(selectedTab == "Past" ? .white : theme.primary)
                         .padding()
                         .frame(maxWidth: .infinity, maxHeight: 40)
-                        .background(selectedTab == "Past" ? Theme.light.primary : Color.clear)
+                        .background(selectedTab == "Past" ? theme.primary : Color.clear)
                         .cornerRadius(25)
                 }
             }
-            .background(Color.white)
+            .background(theme.card)
             .clipShape(Capsule())
             .frame(height: 45)
             .padding(.horizontal)
@@ -88,7 +94,7 @@ struct DashboardContent: View {
                     NavigationLink(destination: PastAppointmentsCalendarView()) {
                         Text("See All")
                             .font(.subheadline)
-                            .foregroundColor(Theme.light.primary)
+                            .foregroundColor(theme.primary)
                             .padding(.trailing)
                     }
                 }
@@ -113,18 +119,23 @@ struct DashboardContent: View {
 
 // MARK: - Reusable Tab Item
 struct TabItem: View {
+    @Environment(\.colorScheme) private var colorScheme
     let image: String
     let title: String
     var isSelected: Bool
     var action: () -> Void
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
 
     var body: some View {
         VStack {
             Image(systemName: image)
-                .foregroundColor(isSelected ? Theme.light.primary : .gray)
+                .foregroundColor(isSelected ? theme.primary : .gray)
             Text(title)
                 .font(.caption)
-                .foregroundColor(isSelected ? Theme.light.primary : .gray)
+                .foregroundColor(isSelected ? theme.primary : .gray)
         }
         .onTapGesture {
             action()
@@ -134,8 +145,13 @@ struct TabItem: View {
 
 
 struct AppointmentCard: View {
+    @Environment(\.colorScheme) private var colorScheme
     let appointment: Appointment
     var isPast: Bool = false  // Default to upcoming
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -147,13 +163,14 @@ struct AppointmentCard: View {
                 VStack(alignment: .leading) {
                     Text(appointment.patientName)
                         .bold()
+                        .foregroundColor(theme.text)
                     Text(appointment.issue)
                         .foregroundColor(.gray)
                         .font(.subheadline)
                 }
                 Spacer()
                 Text(appointment.time)
-                    .foregroundColor(Theme.light.primary)
+                    .foregroundColor(theme.primary)
             }
             .padding(.bottom, 8)
 
@@ -165,7 +182,7 @@ struct AppointmentCard: View {
                     Text("Show History")
                         .frame(maxWidth: .infinity, maxHeight: 2)
                         .padding()
-                        .background(Color(hex: "#61AAF2"))
+                        .background(theme.tertiary)
                         .foregroundColor(.white)
                         .cornerRadius(20)
                 }
@@ -176,7 +193,7 @@ struct AppointmentCard: View {
                         Text("Start Consult")
                             .frame(maxWidth: .infinity, maxHeight: 2)
                             .padding()
-                            .background(Theme.light.primary)
+                            .background(theme.primary)
                             .foregroundColor(.white)
                             .cornerRadius(20)
                     }
@@ -188,15 +205,15 @@ struct AppointmentCard: View {
                             .background(Color.clear)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Theme.light.primary, lineWidth: 1)
+                                    .stroke(theme.primary, lineWidth: 1)
                             )
-                            .foregroundColor(Theme.light.primary)
+                            .foregroundColor(theme.primary)
                     }
                 }
             }
         }
         .padding()
-        .background(Color.white)
+        .background(theme.card)
         .cornerRadius(16)
     }
 

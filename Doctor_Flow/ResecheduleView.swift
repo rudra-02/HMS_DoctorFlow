@@ -8,9 +8,14 @@ struct TimeSlot {
 struct RescheduleView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.colorScheme) private var colorScheme
     let appointment: Appointment
     @State private var selectedDate: Date
     @State private var selectedNewTimeSlot: TimeSlot? = nil
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
     
     let morningTimeSlots = ["9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM"]
     let afternoonTimeSlots = ["3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM"]
@@ -28,17 +33,18 @@ struct RescheduleView: View {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(appointment.patientName).font(.headline)
+                            .foregroundColor(theme.text)
                         Text("\(appointment.time)").font(.subheadline).foregroundColor(.secondary)
                     }
                     Spacer()
                 }
             }
             .padding()
-            .background(Color.blue.opacity(0.1))
+            .background(theme.primary.opacity(0.1))
             
             // Date selection
             VStack(alignment: .leading, spacing: 8) {
-                Text("Select New Date").font(.headline).foregroundColor(.primary)
+                Text("Select New Date").font(.headline).foregroundColor(theme.text)
                     .padding(.horizontal)
                     .padding(.top)
             }
@@ -49,7 +55,7 @@ struct RescheduleView: View {
             
             // Time slots
             VStack(alignment: .leading, spacing: 8) {
-                Text("Select New Time").font(.headline).foregroundColor(.primary)
+                Text("Select New Time").font(.headline).foregroundColor(theme.text)
                     .padding(.horizontal)
                     .padding(.top)
             }
@@ -58,6 +64,7 @@ struct RescheduleView: View {
         }
         .navigationTitle("Reschedule Appointment")
         .navigationBarTitleDisplayMode(.inline)
+        .background(theme.background)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Save") {
@@ -73,7 +80,9 @@ struct RescheduleView: View {
         let dates = getNext30Days()
         return VStack(spacing: 0) {
             HStack {
-                Text(monthYearString(from: selectedDate)).font(.headline).padding(.leading)
+                Text(monthYearString(from: selectedDate)).font(.headline)
+                    .foregroundColor(theme.text)
+                    .padding(.leading)
                 Spacer()
             }.padding(.vertical, 8)
             ScrollViewReader { scrollProxy in
@@ -93,14 +102,14 @@ struct RescheduleView: View {
                                     Text(dayOfWeek(from: date)).font(.caption).fontWeight(.medium)
                                         .foregroundColor(isSelected ? .white : .secondary)
                                     Text("\(Calendar.current.component(.day, from: date))").font(.headline).fontWeight(.bold)
-                                        .foregroundColor(isSelected ? .white : isToday ? .blue : .primary)
-                                    Circle().fill(hasAppointments ? (isSelected ? Color.white : Color.blue) : Color.clear)
+                                        .foregroundColor(isSelected ? .white : isToday ? theme.primary : theme.text)
+                                    Circle().fill(hasAppointments ? (isSelected ? Color.white : theme.primary) : Color.clear)
                                         .frame(width: 4, height: 4)
                                 }
                                 .frame(width: 60, height: 70)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(isSelected ? Color.blue : isToday ? Color.blue.opacity(0.1) : Color.clear)
+                                        .fill(isSelected ? theme.primary : isToday ? theme.primary.opacity(0.1) : Color.clear)
                                 )
                             }
                             .id(date)
@@ -114,7 +123,7 @@ struct RescheduleView: View {
             }
         }
         .padding(.vertical, 8)
-        .background(Color.white)
+        .background(theme.card)
     }
     
     var timeSlotSelectionView: some View {
@@ -132,7 +141,11 @@ struct RescheduleView: View {
                     } else {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             ForEach(morningSlots, id: \.time) { slot in
-                                TimeSlotButton(timeSlot: slot, isSelected: selectedNewTimeSlot?.time == slot.time) {
+                                TimeSlotButton(
+                                    timeSlot: slot,
+                                    isSelected: selectedNewTimeSlot?.time == slot.time,
+                                    theme: theme
+                                ) {
                                     if slot.isAvailable { selectedNewTimeSlot = slot }
                                 }
                             }
@@ -151,7 +164,11 @@ struct RescheduleView: View {
                     } else {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             ForEach(afternoonSlots, id: \.time) { slot in
-                                TimeSlotButton(timeSlot: slot, isSelected: selectedNewTimeSlot?.time == slot.time) {
+                                TimeSlotButton(
+                                    timeSlot: slot,
+                                    isSelected: selectedNewTimeSlot?.time == slot.time,
+                                    theme: theme
+                                ) {
                                     if slot.isAvailable { selectedNewTimeSlot = slot }
                                 }
                             }
@@ -236,6 +253,7 @@ struct RescheduleView: View {
 struct TimeSlotButton: View {
     let timeSlot: TimeSlot
     let isSelected: Bool
+    let theme: Theme
     let action: () -> Void
     
     var body: some View {
@@ -243,7 +261,7 @@ struct TimeSlotButton: View {
             HStack {
                 Text(timeSlot.time)
                     .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(timeSlot.isAvailable ? (isSelected ? .white : .primary) : .secondary)
+                    .foregroundColor(timeSlot.isAvailable ? (isSelected ? .white : theme.text) : .secondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
@@ -255,13 +273,13 @@ struct TimeSlotButton: View {
     
     private var backgroundColor: Color {
         if !timeSlot.isAvailable { return Color.gray.opacity(0.1) }
-        else if isSelected { return Color.blue }
-        else { return Color.white }
+        else if isSelected { return theme.primary }
+        else { return theme.card }
     }
     
     private var borderColor: Color {
         if !timeSlot.isAvailable { return Color.gray.opacity(0.2) }
-        else if isSelected { return Color.blue }
+        else if isSelected { return theme.primary }
         else { return Color.gray.opacity(0.3) }
     }
 }

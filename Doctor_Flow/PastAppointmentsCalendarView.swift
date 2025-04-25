@@ -7,12 +7,17 @@
 import SwiftUI
 
 struct PastAppointmentsCalendarView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedDate: Date = Date()
     @State private var currentMonthOffset: Int = 0
     @State private var scrollProxy: ScrollViewProxy? = nil
     
     private let calendar = Calendar.current
     private let today = Calendar.current.startOfDay(for: Date())
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
 
     // All appointments grouped by date
     private var groupedAppointments: [Date: [Appointment]] {
@@ -43,15 +48,18 @@ struct PastAppointmentsCalendarView: View {
                     currentMonthOffset -= 1
                 }) {
                     Image(systemName: "chevron.left")
+                        .foregroundColor(theme.primary)
                 }
                 Spacer()
                 Text(monthYearString(from: displayedMonth))
                     .font(.headline)
+                    .foregroundColor(theme.text)
                 Spacer()
                 Button(action: {
                     currentMonthOffset += 1
                 }) {
                     Image(systemName: "chevron.right")
+                        .foregroundColor(theme.primary)
                 }
             }
             .padding(.horizontal)
@@ -81,14 +89,14 @@ struct PastAppointmentsCalendarView: View {
                                     .foregroundColor(
                                         isFuture ? .gray.opacity(0.4) :
                                         isSelected ? .white :
-                                        isToday ? .blue :
-                                        .primary
+                                        isToday ? theme.primary :
+                                        theme.text
                                     )
 
                                 // Dot badge (for appointments)
                                 if hasAppointment {
                                     Circle()
-                                        .fill(isSelected ? Color.white : Color.blue)
+                                        .fill(isSelected ? Color.white : theme.primary)
                                         .frame(width: 6, height: 6)
                                 } else {
                                     Circle()
@@ -97,11 +105,11 @@ struct PastAppointmentsCalendarView: View {
                                 }
                             }
                             .padding(10)
-                            .background(isSelected ? Color.blue : Color.clear)
+                            .background(isSelected ? theme.primary : Color.clear)
                             .clipShape(Capsule())
                             .overlay(
                                 Capsule()
-                                    .stroke(isToday && !isSelected ? Color.blue : Color.clear, lineWidth: 1)
+                                    .stroke(isToday && !isSelected ? theme.primary : Color.clear, lineWidth: 1)
                             )
                             .onTapGesture {
                                 if !isFuture {
@@ -131,6 +139,7 @@ struct PastAppointmentsCalendarView: View {
             // MARK: - Header
             Text("Appointments on \(formattedFullDate(selectedDate))")
                 .font(.headline)
+                .foregroundColor(theme.text)
                 .padding(.horizontal)
 
             // MARK: - Appointment List
@@ -154,6 +163,7 @@ struct PastAppointmentsCalendarView: View {
         }
         .navigationTitle("Past Appointments")
         .navigationBarTitleDisplayMode(.inline)
+        .background(theme.background)
     }
 
     // MARK: - Helpers
