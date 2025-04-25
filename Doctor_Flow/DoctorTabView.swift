@@ -7,8 +7,13 @@
 import SwiftUI
 
 struct DoctorTabView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedIndex: Int = 0
     @State private var selectedTab: String = "Upcoming" // for Dashboard's capsule tabs
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
     
     var body: some View {
         NavigationStack{
@@ -32,14 +37,19 @@ struct DoctorTabView: View {
                 // Reusable tab bar
                 DoctorTabBar(selectedIndex: $selectedIndex)
             }
-            .background(Theme.light.background)
+            .background(theme.background)
             .navigationBarHidden(true)
         }
     }
 }
 
 struct DoctorTabBar: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var selectedIndex: Int
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
 
     var body: some View {
         HStack(spacing: 16) {
@@ -58,7 +68,7 @@ struct DoctorTabBar: View {
             Spacer()
         }
         .padding()
-        .background(Color.white)
+        .background(theme.card)
         .frame(height: 40)
     }
 }
@@ -68,6 +78,12 @@ struct DoctorTabBar: View {
 
 
 struct PatientsView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
+    
     var body: some View {
         VStack {
             Text("Patients Screen")
@@ -76,6 +92,7 @@ struct PatientsView: View {
             Spacer()
         }
         .padding()
+        .background(theme.background)
     }
 }
 

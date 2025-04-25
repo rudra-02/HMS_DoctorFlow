@@ -9,6 +9,7 @@ import SwiftUI
 
 
 struct DoctorSlotManagerView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedDate: Date = Date()
     @State private var fullDayLeaves: Set<Date> = []
     @State private var leaveTimeSlots: [Date: Set<String>] = [:]
@@ -16,6 +17,10 @@ struct DoctorSlotManagerView: View {
     @State private var lastAction: (date: Date, slots: Set<String>)? = nil
     @State private var actionType: ActionType = .none
     @State private var showSuccessToast: Bool = false
+    
+    private var theme: Theme {
+        colorScheme == .dark ? Theme.dark : Theme.light
+    }
     
     // Define the specific color for leaves - #61aaf2
     let leaveColor = Color(hex: "#61aaf2")
@@ -42,6 +47,7 @@ struct DoctorSlotManagerView: View {
                     Spacer()
                     Text("MANAGE SLOTS")
                         .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(theme.text)
                     Spacer()
                 }
                 
@@ -59,12 +65,13 @@ struct DoctorSlotManagerView: View {
                                 selectedDate: $selectedDate,
                                 fullDayLeaves: $fullDayLeaves,
                                 leaveColor: redLeaveColor,
-                                mainColor: leaveColor
+                                mainColor: leaveColor,
+                                theme: theme
                             )
                             
                             // Legend
                             HStack(spacing: 20) {
-                                LegendItem(color: Theme.light.primary, text: "Selected")
+                                LegendItem(color: theme.primary, text: "Selected")
                                 LegendItem(color: redLeaveColor, text: "Leave")
                                 LegendItem(color: .green, text: "Today")
                             }
@@ -127,7 +134,7 @@ struct DoctorSlotManagerView: View {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Manage Time Slots")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.black)
+                                .foregroundColor(theme.text)
                                 .padding(.horizontal)
                             
                             // Morning slots
@@ -139,6 +146,7 @@ struct DoctorSlotManagerView: View {
                                 isFullDayBlocked: fullDayLeaves.contains(selectedDate),
                                 leaveColor: redLeaveColor,
                                 mainColor: leaveColor,
+                                theme: theme,
                                 onToggle: { slot in
                                     toggleTimeSlot(for: selectedDate, time: slot)
                                 }
@@ -153,6 +161,7 @@ struct DoctorSlotManagerView: View {
                                 isFullDayBlocked: fullDayLeaves.contains(selectedDate),
                                 leaveColor: redLeaveColor,
                                 mainColor: leaveColor,
+                                theme: theme,
                                 onToggle: { slot in
                                     toggleTimeSlot(for: selectedDate, time: slot)
                                 }
@@ -204,7 +213,7 @@ struct DoctorSlotManagerView: View {
                             }
                         }
                         .padding()
-                        .background(Theme.light.background) // Or .background(Color.white)
+                        .background(theme.background) // Updated to use theme background
                     }
                 }
             }
@@ -219,10 +228,11 @@ struct DoctorSlotManagerView: View {
                             .foregroundColor(leaveColor)
                         Text("Leave schedule saved successfully!")
                             .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(theme.text)
                         Spacer()
                     }
                     .padding()
-                    .background(Color.white)
+                    .background(theme.card)
                     .cornerRadius(12)
                     .shadow(radius: 5)
                     .padding()
@@ -231,7 +241,7 @@ struct DoctorSlotManagerView: View {
                 }
             }
         }
-        .background(Theme.light.background)
+        .background(theme.background)
         .alert(isPresented: $showUndoAlert) {
             Alert(
                 title: Text("Changes Undone"),
@@ -344,6 +354,7 @@ struct CalendarView: View {
     @Binding var fullDayLeaves: Set<Date>
     let leaveColor: Color
     let mainColor: Color
+    let theme: Theme
     
     let calendar = Calendar.current
     @State private var currentMonth = Date()
@@ -425,7 +436,7 @@ struct CalendarView: View {
                             Circle()
                                 .fill(
                                     isOnLeave ? leaveColor :
-                                        isSelected ? Theme.light.primary :
+                                        isSelected ? theme.primary :
                                             Color.clear
                                 )
                                 .frame(width: 38, height: 38)
@@ -436,15 +447,15 @@ struct CalendarView: View {
                             
                             Text("\(calendar.component(.day, from: date))")
                                 .font(.system(size: 16, weight: isToday || isSelected ? .bold : .regular))
-                                .foregroundColor(isSelected || isOnLeave ? .white : (isToday ? .green : .primary))
+                                .foregroundColor(isSelected || isOnLeave ? .white : (isToday ? .green : theme.text))
                         }
                     }
                 }
             }
             .padding(12)
-            .background(.white)
+            .background(theme.card)
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.05), radius: 4)
+            .shadow(color: theme.shadow, radius: 4)
         }
     }
     
@@ -504,6 +515,7 @@ struct SlotSection: View {
     let isFullDayBlocked: Bool
     let leaveColor: Color
     let mainColor: Color
+    let theme: Theme
     let onToggle: (String) -> Void
     
     var body: some View {
@@ -530,6 +542,7 @@ struct SlotSection: View {
                         isBlocked: blockedSlots.contains(slot) || isFullDayBlocked,
                         fullDayBlock: isFullDayBlocked,
                         leaveColor: leaveColor,
+                        theme: theme,
                         onToggle: {
                             onToggle(slot)
                         }
@@ -551,6 +564,7 @@ struct SlotToggleButton: View {
     let isBlocked: Bool
     let fullDayBlock: Bool
     let leaveColor: Color
+    let theme: Theme
     let onToggle: () -> Void
     
     var body: some View {
@@ -560,6 +574,7 @@ struct SlotToggleButton: View {
                     .font(.system(size: 14))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
+                    .foregroundColor(theme.text)
                 Spacer()
                 Image(systemName: isBlocked ? "xmark.circle.fill" : "checkmark.circle.fill")
                     .foregroundColor(isBlocked ? leaveColor : .green)
